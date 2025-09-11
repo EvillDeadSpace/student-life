@@ -46,9 +46,8 @@ export default function Experience() {
         kategorija: formData.kategorija,
       };
 
-      // Pošalji na API
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-      const response = await fetch(`${baseUrl}/api/posts`, {
+      // Pošalji na API - koristi relativnu putanju za production
+      const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

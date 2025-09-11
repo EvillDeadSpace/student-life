@@ -31,8 +31,8 @@ export interface Post {
 // Fetch posts filtered by category
 export async function getAllPost(category: string): Promise<Post[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/posts`, {
+    // Use relative path for API calls (works both locally and in production)
+    const response = await fetch("/api/posts", {
       cache: "no-store", // Ne keširaj podatke
       headers: {
         "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -62,8 +62,8 @@ export async function getAllPost(category: string): Promise<Post[]> {
 // Register new user
 export async function register(userData: User) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/auth/registration`, {
+    // Use relative path for API calls (works both locally and in production)
+    const response = await fetch("/api/auth/registration", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -138,8 +138,8 @@ export const slugToTitle = (slug: string): string => {
 // Find specific post by title (used for dynamic routing)
 export const getPostByTitle = async (naslov: string) => {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-    const response = await fetch(`${baseUrl}/api/posts`);
+    // Use relative path for API calls (works both locally and in production)
+    const response = await fetch("/api/posts");
 
     if (!response.ok) {
       console.error("Failed to fetch posts:", response.statusText);
