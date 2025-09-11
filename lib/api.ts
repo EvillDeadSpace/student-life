@@ -1,0 +1,160 @@
+// Type definitions for API data
+export interface User {
+  id?: string;
+  ime?: string;
+  prezime?: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  password?: string;
+  lokacija: string;
+}
+
+export interface Post {
+  id: number;
+  ime?: string;
+  prezime?: string;
+  datum?: string;
+  kategorija: string;
+  naslov?: string;
+  title?: string;
+  tekst?: string;
+  content?: string;
+  lokacija?: string;
+  likes: number;
+  comments: number;
+  user?: {
+    lokacija: string;
+  };
+}
+
+// Fetch posts filtered by category
+export async function getAllPost(category: string): Promise<Post[]> {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/posts`, {
+      cache: "no-store", // Ne keširaj podatke
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch posts:", response.statusText);
+      return [];
+    }
+
+    const data: Post[] = await response.json();
+
+    const filtered = data.filter(
+      (post: Post) => post.kategorija?.toLowerCase() === category.toLowerCase()
+    );
+
+    return filtered;
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return [];
+  }
+}
+
+// Register new user
+export async function register(userData: User) {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/auth/registration`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Registration error");
+    }
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Save user session to localStorage (client-side only)
+export const saveUserToStorage = (userData: User) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify({
+        id: userData.id,
+        ime: userData.ime,
+        prezime: userData.prezime,
+        email: userData.email,
+        lokacija: userData.lokacija,
+        isLoggedIn: true,
+      })
+    );
+  }
+};
+
+export const getUserFromStorage = () => {
+  if (typeof window !== "undefined") {
+    const userData = localStorage.getItem("currentUser");
+    return userData ? JSON.parse(userData) : null;
+  }
+  return null;
+};
+
+export const removeUserFromStorage = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("currentUser");
+  }
+};
+
+export const isUserLoggedIn = () => {
+  return getUserFromStorage() !== null;
+};
+
+// Convert title to URL-friendly slug (removes special characters, spaces)
+export const createSlug = (naslov: string): string => {
+  return naslov
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // replace spaces with dashes
+    .replace(/[^a-z0-9-]/g, "") // remove special characters
+    .replace(/-+/g, "-"); // remove duplicate dashes
+};
+
+// Convert slug back to title format (capitalize words)
+export const slugToTitle = (slug: string): string => {
+  return slug
+    .replace(/-/g, " ") // replace dashes with spaces
+    .replace(/\b\w/g, (l) => l.toUpperCase()); // capitalize first letters
+};
+
+// Find specific post by title (used for dynamic routing)
+export const getPostByTitle = async (naslov: string) => {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const response = await fetch(`${baseUrl}/api/posts`);
+
+    if (!response.ok) {
+      console.error("Failed to fetch posts:", response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+
+    const post = data.find(
+      (p: { naslov: string }) => p.naslov.toLowerCase() === naslov.toLowerCase()
+    );
+
+    return post || null;
+  } catch (error) {
+    console.error("Error finding post:", error);
+    return null;
+  }
+};
