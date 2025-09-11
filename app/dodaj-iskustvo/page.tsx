@@ -47,7 +47,8 @@ export default function Experience() {
       };
 
       // Pošalji na API
-      const response = await fetch("http://localhost:3000/api/posts", {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+      const response = await fetch(`${baseUrl}/api/posts`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

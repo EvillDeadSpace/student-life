@@ -29,23 +29,27 @@ Modern student community platform where students can share experiences about fac
 ## 📦 Installation
 
 1. **Clone the repository**
+
 ```bash
 git clone https://github.com/yourusername/student-life-platform.git
 cd student-life-platform
 ```
 
 2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
 3. **Setup database**
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
 4. **Run development server**
+
 ```bash
 npm run dev
 ```
@@ -56,14 +60,16 @@ npm run dev
 ## 🗃️ Database Schema
 
 ### Users Table
+
 - `id` - Unique identifier
 - `ime` (firstName) - User's first name
-- `prezime` (lastName) - User's last name  
+- `prezime` (lastName) - User's last name
 - `email` - User's email address
 - `password` - Encrypted password
 - `lokacija` (location) - User's location
 
 ### Posts Table
+
 - `id` - Unique identifier
 - `userId` - Foreign key to users
 - `naslov` (title) - Post title
@@ -76,10 +82,12 @@ npm run dev
 ## 🎯 API Endpoints
 
 ### Posts
+
 - `GET /api/posts` - Fetch all posts with user location (JOIN query)
 - `POST /api/posts` - Create new post (with revalidation)
 
-### Authentication  
+### Authentication
+
 - `POST /api/auth/registration` - User registration
 
 ## 🏗️ Project Structure
@@ -111,17 +119,20 @@ student-life/
 ## 🔧 Key Features Implementation
 
 ### Auto-refresh System
+
 - **Focus-based refresh**: Data updates when user returns to tab
-- **Interval refresh**: Automatic updates every 30 seconds  
+- **Interval refresh**: Automatic updates every 30 seconds
 - **Cache invalidation**: `revalidatePath` after new posts
 - **No-cache headers**: Always fetch fresh data
 
 ### Dynamic Routing
+
 - Slug generation from post titles
 - SEO-friendly URLs (`/kategorije/[slug]`)
 - Title to slug conversion utilities
 
 ### Modern UI/UX
+
 - Glassmorphism design elements
 - Smooth animations and transitions
 - Loading states and skeleton screens
@@ -138,12 +149,14 @@ student-life/
 ## 🚀 Deployment
 
 ### Build for production
+
 ```bash
 npm run build
 npm run start
 ```
 
 ### Environment Variables
+
 ```env
 DATABASE_URL="file:./dev.db"
 NEXT_PUBLIC_API_URL="http://localhost:3000"
