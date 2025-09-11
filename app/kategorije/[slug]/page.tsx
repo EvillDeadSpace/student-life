@@ -1,5 +1,7 @@
-import React from "react";
-import { slugToTitle, getPostByTitle } from "../../../lib/api";
+"use client";
+import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { slugToTitle, getPostByTitle, type Post } from "../../../lib/api";
 import {
   ArrowLeftIcon,
   CalendarIcon,
@@ -8,24 +10,65 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
-interface Props {
-  params: Promise<{
-    slug: string;
-  }>;
-}
+// Format date helper function
+const formatDate = (dateString: string | undefined) => {
+  if (!dateString) return "Nepoznat datum";
 
-async function SlugPage({ params }: Props) {
-  const { slug } = await params;
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("bs-BA", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  } catch {
+    return "Nepoznat datum";
+  }
+};
 
-  // Convert slug u header
-  const naslov = slugToTitle(slug);
+export default function SlugPage() {
+  const params = useParams();
+  const slug = params?.slug as string;
+  const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find post
-  const post = await getPostByTitle(naslov);
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (!slug) return;
 
-  console.log("Slug:", slug);
-  console.log("Naslov:", naslov);
-  console.log("Post:", post);
+      try {
+        // Convert slug u header
+        const naslov = slugToTitle(slug);
+
+        // Find post
+        const foundPost = await getPostByTitle(naslov);
+
+        console.log("Slug:", slug);
+        console.log("Naslov:", naslov);
+        console.log("Post:", foundPost);
+
+        setPost(foundPost);
+      } catch (error) {
+        console.error("Error fetching post:", error);
+        setPost(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600'></div>
+          <p className='mt-4 text-gray-600'>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -53,7 +96,8 @@ async function SlugPage({ params }: Props) {
   }
 
   // Format datum
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return "Nepoznat datum";
     const date = new Date(dateString);
     return date.toLocaleDateString("bs-BA", {
       year: "numeric",
@@ -232,5 +276,3 @@ async function SlugPage({ params }: Props) {
     </div>
   );
 }
-
-export default SlugPage;
