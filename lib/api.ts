@@ -8,6 +8,7 @@ export interface User {
   email: string;
   password?: string;
   lokacija: string;
+  comments: Comment[];
 }
 
 export interface Post {
@@ -139,7 +140,7 @@ export const slugToTitle = (slug: string): string => {
 export const getPostByTitle = async (naslov: string) => {
   try {
     // Use absolute URL for client-side calls when needed
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     const response = await fetch(`${baseUrl}/api/posts`);
 
     if (!response.ok) {
@@ -159,3 +160,5 @@ export const getPostByTitle = async (naslov: string) => {
     return null;
   }
 };
+
+export async function getNumberComments() {}

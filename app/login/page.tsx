@@ -11,7 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { register } from "@/lib/api";
 import type { FC } from "react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { saveUserToStorage } from "@/lib/Auth";
 
 const Auth: FC = () => {
@@ -57,13 +57,14 @@ const Auth: FC = () => {
         email: formData.email,
         password: formData.password,
         lokacija: formData.lokacija,
+        comments: [],
       });
 
       saveUserToStorage(result);
       console.log("Uspešna registracija:", result);
 
       alert("Registracija uspešna!");
-      redirect("/");
+      router.push("/");
     } catch (error) {
       console.error("Greška:", error);
       alert(
@@ -92,12 +93,32 @@ const Auth: FC = () => {
       });
     } else {
       // Login logic (later)
-      console.log("Login:", {
-        email: formData.email,
-        password: formData.password,
-      });
+      try {
+        const res = await fetch(`/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Login failed");
+
+        saveUserToStorage(data);
+        alert("Uspješno ste prijavljeni");
+        router.push("/");
+      } catch (err) {
+        console.error("Login error:", err);
+        alert(
+          "Greška pri prijavi: " +
+            (err instanceof Error ? err.message : "Nepoznata greška")
+        );
+      }
     }
   };
+
+  const router = useRouter();
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900 bg-grid-pattern flex items-center justify-center p-4'>
@@ -298,6 +319,10 @@ const Auth: FC = () => {
                   <LockClosedIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
                   <input
                     type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className='w-full pl-10 pr-12 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300'
                     placeholder='••••••••'
                   />
@@ -325,6 +350,13 @@ const Auth: FC = () => {
                     <LockClosedIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400' />
                     <input
                       type={showConfirmPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
                       className='w-full pl-10 pr-12 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-300'
                       placeholder='••••••••'
                     />
