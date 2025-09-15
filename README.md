@@ -1,183 +1,88 @@
-# 🎓 Student Life Platform
+# 🎓 Student Life — Live demo & deploy
 
-Modern student community platform where students can share experiences about faculty life, internships, scholarships, and student housing.
+Student Life is a modern community platform where students share real experiences about faculty life, internships, scholarships and student housing. This README has been updated to highlight the live deployment, how to test the app, and the current features.
 
-![Next.js](https://img.shields.io/badge/Next.js-15.5.2-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC)
-![Prisma](https://img.shields.io/badge/Prisma-2D3748)
+Live demo (deployed on Vercel):
 
-## ✨ Features
+➡️ https://student-life-orpin.vercel.app/
 
-- **📚 Category-based Content**: Faculty, Student Housing, Scholarships, Internships & Jobs
-- **👥 User Authentication**: Registration and login system with localStorage sessions
-- **🔄 Real-time Updates**: Automatic content refresh and cache invalidation
-- **📱 Responsive Design**: Modern, mobile-friendly interface with dark mode support
-- **🎯 Dynamic Routing**: SEO-friendly slug-based URLs for individual posts
-- **📍 Location Tracking**: User location display with JOIN queries
-- **💾 Database Integration**: Prisma ORM with SQLite database
+Deployed with Vercel. Please open the demo and test flows: registration, creating a post (if enabled), commenting, and the like button on list/detail pages.
 
-## 🚀 Tech Stack
+![Next.js](https://img.shields.io/badge/Next.js-15.x-black) ![TypeScript](https://img.shields.io/badge/TypeScript-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC) ![Prisma](https://img.shields.io/badge/Prisma-%F0%9F%92%BB)
 
-- **Frontend**: Next.js 15.5.2 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Icons**: Heroicons
-- **Database**: SQLite with Prisma ORM
-- **Authentication**: localStorage-based sessions
+## Quick highlights
 
-## 📦 Installation
+- Live demo on Vercel: https://student-life-orpin.vercel.app/ (please test likes, comments, and auth flows)
+- Deployment: Vercel (Git integration, automatic builds on push)
+- Key features: category feeds, post detail pages with comments, like toggle + counts, user auth (localStorage), dark mode, responsive UI
 
-1. **Clone the repository**
+## Updated Tech & Features
 
-```bash
-git clone https://github.com/yourusername/student-life-platform.git
-cd student-life-platform
-```
+- Next.js (App Router) + TypeScript
+- Tailwind CSS + Heroicons
+- Prisma ORM (migration-ready — project contains Prisma schema and migrations)
+- Likes, comments, and basic authentication (localStorage session)
+- Deploy pipeline configured for Vercel
 
-2. **Install dependencies**
+## Run locally
 
-```bash
+1. Install deps
+
+```powershell
 npm install
 ```
 
-3. **Setup database**
+2. Generate Prisma client and push schema
 
-```bash
+```powershell
 npx prisma generate
 npx prisma db push
 ```
 
-4. **Run development server**
+3. Start dev server
 
-```bash
+```powershell
 npm run dev
 ```
 
-5. **Open application**
-   - Navigate to [http://localhost:3000](http://localhost:3000)
+Open http://localhost:3000 and compare with the live Vercel demo.
 
-## 🗃️ Database Schema
+## Environment
 
-### Users Table
+Create a `.env` file at project root. Example options below:
 
-- `id` - Unique identifier
-- `ime` (firstName) - User's first name
-- `prezime` (lastName) - User's last name
-- `email` - User's email address
-- `password` - Encrypted password
-- `lokacija` (location) - User's location
-
-### Posts Table
-
-- `id` - Unique identifier
-- `userId` - Foreign key to users
-- `naslov` (title) - Post title
-- `tekst` (content) - Post content
-- `kategorija` (category) - Post category
-- `datum` (date) - Creation timestamp
-- `likes` - Number of likes
-- `comments` - Number of comments
-
-## 🎯 API Endpoints
-
-### Posts
-
-- `GET /api/posts` - Fetch all posts with user location (JOIN query)
-- `POST /api/posts` - Create new post (with revalidation)
-
-### Authentication
-
-- `POST /api/auth/registration` - User registration
-
-## 🏗️ Project Structure
-
-```
-student-life/
-├── app/                          # Next.js App Router
-│   ├── api/                      # API routes
-│   │   ├── auth/registration/    # User registration
-│   │   └── posts/               # Posts CRUD operations
-│   ├── kategorije/              # Category pages
-│   │   ├── fakultet/            # Faculty category
-│   │   ├── praksa-i-posao/      # Internships category
-│   │   ├── stipendije/          # Scholarships category
-│   │   ├── studentski-dom/      # Student housing category
-│   │   └── [slug]/              # Dynamic post pages
-│   ├── dodaj-iskustvo/          # Add new experience form
-│   └── login/                   # Authentication page
-├── components/                   # React components
-│   ├── fakultet/                # Post display components
-│   ├── form/                    # Form components
-│   └── header/                  # Navigation components
-├── lib/                         # Utilities
-│   ├── api.ts                   # API helper functions
-│   └── prisma.ts                # Database connection
-└── prisma/                      # Database schema and migrations
-```
-
-## 🔧 Key Features Implementation
-
-### Auto-refresh System
-
-- **Focus-based refresh**: Data updates when user returns to tab
-- **Interval refresh**: Automatic updates every 30 seconds
-- **Cache invalidation**: `revalidatePath` after new posts
-- **No-cache headers**: Always fetch fresh data
-
-### Dynamic Routing
-
-- Slug generation from post titles
-- SEO-friendly URLs (`/kategorije/[slug]`)
-- Title to slug conversion utilities
-
-### Modern UI/UX
-
-- Glassmorphism design elements
-- Smooth animations and transitions
-- Loading states and skeleton screens
-- Mobile-responsive grid layouts
-
-## 🌟 Usage
-
-1. **Registration**: Create account with name, email, password, and location
-2. **Browse Categories**: Explore faculty, housing, scholarships, or jobs content
-3. **Add Experience**: Share your student experiences and tips
-4. **Real-time Updates**: Content automatically refreshes as new posts are added
-5. **Individual Posts**: Click any post to view detailed content with slug URLs
-
-## 🚀 Deployment
-
-### Build for production
-
-```bash
-npm run build
-npm run start
-```
-
-### Environment Variables
+For development (SQLite):
 
 ```env
 DATABASE_URL="file:./dev.db"
 NEXT_PUBLIC_API_URL="http://localhost:3000"
 ```
 
-## 🤝 Contributing
+For Postgres (production-like):
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+NEXT_PUBLIC_API_URL="https://student-life-orpin.vercel.app"
+```
 
-## 📝 License
+## Test the main flows
 
-This project is licensed under the MIT License.
+- Registration / Login: POST to `/api/auth/registration` and `/api/auth/login` or use the UI.
+- Likes: GET `/api/likes?postId=<id>` to see counts; POST `/api/likes` with JSON `{ postId, userId }` to toggle.
+- Comments: GET/POST to `/api/comment` (use UI on post pages).
 
-## 👨‍💻 Author
+When testing on the live demo, open browser devtools -> Network to watch the API calls and confirm responses.
 
-Built with ❤️ by Amar Tubic
+## Notes & Caveats
+
+- Current auth uses localStorage sessions for convenience; for production consider server-side sessions or JWTs with HttpOnly cookies.
+- Likes and comments require a valid user id in requests — the UI stores the user locally after login.
+- Migrations are present in `prisma/migrations`. If you switch to Postgres, ensure `DATABASE_URL` is updated and run migrations with Prisma.
+
+## Contributing
+
+- Fork, branch, PR — standard flow. If you want me to help wire Vercel environment variables or adjust the deployment settings, tell me which account/organization to use.
 
 ---
 
-**Student Life Platform** - Connecting students, sharing experiences! 🎓✨
+If you want the README to be more promotional (longer demo screenshots, feature highlights, or step-by-step testing scripts), tell me which sections to expand and I will update it.
