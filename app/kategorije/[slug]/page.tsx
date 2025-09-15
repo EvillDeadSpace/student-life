@@ -15,6 +15,9 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
+// Components for likes
+import LikeButton from "@/components/LikeComponents/LikeComponents";
+
 // Format date helper function
 const formatDate = (dateString: string | undefined) => {
   if (!dateString) return "Nepoznat datum";
@@ -243,22 +246,8 @@ export default function SlugPage() {
 
         {/* Action Buttons */}
         <div className='flex flex-wrap items-center justify-center gap-4 mt-8'>
-          <button className='inline-flex items-center px-6 py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
-            <svg
-              className='w-5 h-5 mr-2'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
-              />
-            </svg>
-            Sviđa mi se
-          </button>
+          {/* Button  */}
+          <LikeButton postId={post.id} />
 
           <button className='inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105'>
             <svg

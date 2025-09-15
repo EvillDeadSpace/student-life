@@ -161,4 +161,27 @@ export const getPostByTitle = async (naslov: string) => {
   }
 };
 
+export async function getLikeCount(postId: number) {
+  const res = await fetch(`/api/likes?postId=${postId}`, { cache: "no-store" });
+  const json = await res.json();
+  if (!res.ok) {
+    console.error("getLikeCount error response:", res.status, json);
+    return 0;
+  }
+  return Number(json.count ?? 0);
+}
+
+export async function toggleLike(postId: number, userId: number) {
+  const res = await fetch(`/api/likes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ postId, userId }),
+  });
+  const json = await res.json();
+  if (!res.ok) {
+    console.error("toggleLike error response:", res.status, json);
+  }
+  return json;
+}
+
 export async function getNumberComments() {}
