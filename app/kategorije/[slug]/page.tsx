@@ -406,19 +406,6 @@ export default function SlugPage() {
                 </h4>
 
                 <div className='space-y-4'>
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                    <input
-                      type='text'
-                      placeholder='Vaše ime'
-                      className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white transition-all duration-300'
-                    />
-                    <input
-                      type='email'
-                      placeholder='Vaš email (opciono)'
-                      className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white transition-all duration-300'
-                    />
-                  </div>
-
                   <textarea
                     rows={4}
                     value={commentText}
