@@ -20,28 +20,42 @@ model User {
   // Relation with post
   posts   Post[]
   Comment Comment[]
+  likes   Likes[]
 }
 
 model Post {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   userId     Int
-  user       User      @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id])
   ime        String
   prezime    String
   naslov     String
   tekst      String
-  datum      DateTime  @default(now())
-  lajkovi    Int       @default(0)
-  kategorija String    @default("fakultet")
-  Comment    Comment[]
+  datum      DateTime @default(now())
+  lajkovi    Int      @default(0)
+  kategorija String   @default("fakultet")
+
+  likes   Likes[]
+  Comment Comment[]
 }
 
 model Comment {
   id        String   @id @default(cuid())
   content   String
-  userId    Int // ko je napisao
+  userId    Int 
   user      User     @relation(fields: [userId], references: [id])
-  postId    Int // na koju objavu
+  postId    Int 
   post      Post     @relation(fields: [postId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model Likes {
+  id     Int @id @default(autoincrement())
+  userId Int
+  postId Int
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([userId, postId])
 }

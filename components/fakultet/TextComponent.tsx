@@ -1,12 +1,9 @@
-import {
-  CalendarIcon,
-  ChatBubbleLeftEllipsisIcon,
-  UserIcon,
-} from "@heroicons/react/24/outline";
+import { CalendarIcon, UserIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { createSlug, type Post } from "../../lib/api";
+import LikeButton from "../LikeComponents/LikeComponents";
 
-// Display posts in card format with category and location badges
+// Main CARD
 function TextComponent({ posts }: { posts: Post[] }) {
   return (
     <div>
@@ -60,33 +57,14 @@ function TextComponent({ posts }: { posts: Post[] }) {
               {/* Post footer */}
               <div className='flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700'>
                 <div className='flex items-center space-x-6'>
-                  <button className='flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors'>
-                    <svg
-                      className='w-5 h-5'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={2}
-                        d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
-                      />
-                    </svg>
-                    <span>{post.likes}</span>
-                  </button>
-                  <button className='flex items-center space-x-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors'>
-                    <ChatBubbleLeftEllipsisIcon className='w-5 h-5' />
-                    <span>{post.comments}</span>
-                  </button>
+                  <LikeButton postId={post.id} compact />
                 </div>
                 <Link
                   href={`/kategorije/${createSlug(
                     post.naslov || post.title || ""
                   )}`}
                 >
-                  <button className='text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors'>
+                  <button className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'>
                     Čitaj više
                   </button>
                 </Link>
