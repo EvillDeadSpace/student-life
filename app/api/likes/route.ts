@@ -19,10 +19,10 @@ export async function GET(req: Request) {
 
     const count = await prisma.likes.count({ where: { postId } });
     return NextResponse.json({ count });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("GET /api/likes error:", err);
     return NextResponse.json(
-      { error: err.message || "Server error" },
+      { error: err instanceof Error ? err.message : "Server error" },
       { status: 500 }
     );
   }
@@ -83,17 +83,22 @@ export async function POST(req: Request) {
 
     await prisma.likes.create({ data: { userId, postId } });
     return NextResponse.json({ liked: true });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("POST /api/likes error:", err);
     // If FK error (P2003) -> useful message
-    if (err?.code === "P2003") {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code?: string }).code === "P2003"
+    ) {
       return NextResponse.json(
         { error: "Foreign key constraint violated" },
         { status: 400 }
       );
     }
     return NextResponse.json(
-      { error: err.message || "Server error" },
+      { error: err instanceof Error ? err.message : "Server error" },
       { status: 500 }
     );
   }
