@@ -1,7 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { slugToTitle, getPostByTitle, type Post } from "../../../lib/api";
+import {
+  slugToTitle,
+  getPostByTitle,
+  type Post,
+  getUserFromStorage,
+} from "../../../lib/api";
 import {
   ArrowLeftIcon,
   CalendarIcon,
@@ -31,6 +36,19 @@ export default function SlugPage() {
   const slug = params?.slug as string;
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  type Comment = {
+    id: string;
+    content: string;
+    createdAt: string;
+    user?: {
+      ime: string;
+      prezime: string;
+    };
+  };
+
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentText, setCommentText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -58,6 +76,21 @@ export default function SlugPage() {
 
     fetchPost();
   }, [slug]);
+  // fetch comments when post is loaded (declare unconditionally to preserve Hooks order)
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!post) return;
+      try {
+        const res = await fetch(`/api/comment?postId=${post.id}`);
+        const data = await res.json();
+        setComments(data || []);
+      } catch (err) {
+        console.error("Error fetching comments", err);
+      }
+    };
+
+    fetchComments();
+  }, [post]);
 
   if (loading) {
     return (
@@ -95,17 +128,36 @@ export default function SlugPage() {
     );
   }
 
-  // Format datum
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return "Nepoznat datum";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("bs-BA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const handleSubmitComment = async () => {
+    if (!commentText.trim()) return;
+    if (!post) return;
+
+    const currentUser = getUserFromStorage();
+    const userId = currentUser?.id ?? null;
+
+    if (!userId) {
+      alert("Morate biti prijavljeni da biste ostavili komentar.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/comment`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: commentText, userId, postId: post.id }),
+      });
+      const created = await res.json();
+      if (!res.ok) throw new Error(created.error || "Failed");
+
+      // refresh comments
+      setComments((prev) => [created, ...prev]);
+      setCommentText("");
+    } catch (err) {
+      console.error("Error posting comment", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -241,6 +293,166 @@ export default function SlugPage() {
             </svg>
             Komentiraj
           </button>
+        </div>
+
+        {/* Comments Section - BOMBA DIZAJN! */}
+        <div className='mt-12'>
+          <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden'>
+            {/* Comments Header */}
+            <div className='bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 px-6 py-4'>
+              <h3 className='text-xl font-bold text-white flex items-center'>
+                <svg
+                  className='w-6 h-6 mr-3'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  stroke='currentColor'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+                  />
+                </svg>
+                Komentari ({comments.length})
+              </h3>
+            </div>
+
+            {/* Comments List */}
+            <div className='p-6 space-y-6'>
+              {comments.map((komentar) => (
+                <div
+                  key={komentar.id}
+                  className='bg-gray-50 dark:bg-gray-700 rounded-xl p-5 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1'
+                >
+                  {/* Comment Header */}
+                  <div className='flex items-center justify-between mb-3'>
+                    <div className='flex items-center space-x-3'>
+                      <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center'>
+                        <span className='text-white font-bold text-sm'>
+                          {(komentar.user?.ime ?? "A").charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 className='font-semibold text-gray-900 dark:text-white'>
+                          {komentar.user
+                            ? `${komentar.user.ime} ${komentar.user.prezime}`
+                            : "Anonim"}
+                        </h4>
+                        <p className='text-sm text-gray-500 dark:text-gray-400'>
+                          {formatDate(komentar.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                    {/* Comment Actions */}
+                    <div className='flex items-center space-x-2'>
+                      <button className='text-gray-400 hover:text-red-500 transition-colors p-1'>
+                        <svg
+                          className='w-4 h-4'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+                          />
+                        </svg>
+                      </button>
+                      <button className='text-gray-400 hover:text-blue-500 transition-colors p-1'>
+                        <svg
+                          className='w-4 h-4'
+                          fill='none'
+                          viewBox='0 0 24 24'
+                          stroke='currentColor'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6'
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Comment Content */}
+                  <p className='text-gray-700 dark:text-gray-300 leading-relaxed pl-13'>
+                    {komentar.content}
+                  </p>
+                </div>
+              ))}
+
+              {/* Add Comment Form */}
+              <div className='border-t border-gray-200 dark:border-gray-600 pt-6 mt-8'>
+                <h4 className='text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center'>
+                  <svg
+                    className='w-5 h-5 mr-2 text-teal-500'
+                    fill='none'
+                    viewBox='0 0 24 24'
+                    stroke='currentColor'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M12 4v16m8-8H4'
+                    />
+                  </svg>
+                  Dodaj komentar
+                </h4>
+
+                <div className='space-y-4'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                    <input
+                      type='text'
+                      placeholder='Vaše ime'
+                      className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white transition-all duration-300'
+                    />
+                    <input
+                      type='email'
+                      placeholder='Vaš email (opciono)'
+                      className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white transition-all duration-300'
+                    />
+                  </div>
+
+                  <textarea
+                    rows={4}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder='Vaš komentar...'
+                    className='w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 dark:bg-gray-700 dark:text-white resize-none transition-all duration-300'
+                  ></textarea>
+
+                  <div className='flex justify-end'>
+                    <button
+                      onClick={handleSubmitComment}
+                      disabled={submitting}
+                      className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center disabled:opacity-50'
+                    >
+                      <svg
+                        className='w-5 h-5 mr-2'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M12 19l9 2-9-18-9 18 9-2zm0 0v-8'
+                        />
+                      </svg>
+                      Objavi komentar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Similar Posts Section */}

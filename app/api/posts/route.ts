@@ -11,7 +11,13 @@ export async function POST(req: Request) {
     const { userId, ime, prezime, naslov, tekst, kategorija } =
       await req.json();
 
-    console.log("POST /api/posts - Data received:", { userId, ime, prezime, naslov, kategorija });
+    console.log("POST /api/posts - Data received:", {
+      userId,
+      ime,
+      prezime,
+      naslov,
+      kategorija,
+    });
 
     const post = await prisma.post.create({
       data: {
@@ -41,7 +47,7 @@ export async function GET() {
   try {
     console.log("GET /api/posts - Starting to fetch posts");
     console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-    
+
     const posts = await prisma.post.findMany({
       include: {
         user: {
@@ -61,11 +67,18 @@ export async function GET() {
       lokacija: post.user.lokacija,
     }));
 
-    console.log("GET /api/posts - Successfully fetched", postsWithLocation.length, "posts");
+    console.log(
+      "GET /api/posts - Successfully fetched",
+      postsWithLocation.length,
+      "posts"
+    );
     return NextResponse.json(postsWithLocation);
   } catch (error) {
     console.error("Error fetching posts - Full error:", error);
-    console.error("Error message:", error instanceof Error ? error.message : 'Unknown error');
+    console.error(
+      "Error message:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
     return NextResponse.json(
       { error: "Error fetching posts" },
       { status: 500 }

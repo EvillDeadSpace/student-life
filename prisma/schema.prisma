@@ -12,23 +12,36 @@ model User {
   ime       String
   prezime   String
   email     String   @unique
-  password  String  
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  lokacija  String   @default("Sarajevo") 
+  lokacija  String   @default("Sarajevo")
 
- // Relation with post
-  posts     Post[]
+  // Relation with post
+  posts   Post[]
+  Comment Comment[]
 }
+
 model Post {
-  id          Int      @id @default(autoincrement())
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  ime         String
-  prezime     String
-  naslov      String
-  tekst       String    
-  datum       DateTime @default(now())
-  lajkovi     Int      @default(0)
-  kategorija  String   @default("fakultet")
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  ime        String
+  prezime    String
+  naslov     String
+  tekst      String
+  datum      DateTime  @default(now())
+  lajkovi    Int       @default(0)
+  kategorija String    @default("fakultet")
+  Comment    Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    Int // ko je napisao
+  user      User     @relation(fields: [userId], references: [id])
+  postId    Int // na koju objavu
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
 }
