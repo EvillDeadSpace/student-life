@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getLikeCount, getUserFromStorage, toggleLike } from "@/lib/api";
+import toast from "react-hot-toast";
 
 export default function LikeButton({
   postId,
@@ -33,7 +34,7 @@ export default function LikeButton({
 
   const onClick = async () => {
     if (!user) {
-      alert("Moraš se ulogovati da bi lajkao");
+      toast.error("Moras biti logovan kako bih se lajkovao");
       return;
     }
     const userId = Number((user as { id?: number | string }).id);
@@ -46,9 +47,7 @@ export default function LikeButton({
 
     setLoading(true);
     try {
-      console.debug("LikeButton: sending toggle", { postId, userId });
       const res = await toggleLike(postId, userId);
-      console.debug("LikeButton: toggle response", res);
       if (res && typeof res.liked === "boolean") {
         if (res.liked) setCount((c) => c + 1);
         else setCount((c) => Math.max(0, c - 1));

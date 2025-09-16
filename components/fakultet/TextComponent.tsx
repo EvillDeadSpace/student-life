@@ -26,7 +26,7 @@ function TextComponent({ posts }: { posts: Post[] }) {
                     </div>
                     <div className='flex items-center text-sm text-gray-500 dark:text-gray-400'>
                       <CalendarIcon className='w-4 h-4 mr-1' />
-                      {post.datum || new Date().toLocaleDateString()}
+                      {post.datum?.slice(0, 10)}
                     </div>
                   </div>
                 </div>

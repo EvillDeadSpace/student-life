@@ -1,8 +1,8 @@
+import RegisterPanel from "@/components/form/RegisterPanel";
 import { AcademicCapIcon } from "@heroicons/react/24/outline";
-import LoginPanel from "@/components/form/LoginPanel";
 import { Toaster } from "react-hot-toast";
 
-export default function LoginPage() {
+export default function RegistrationPage() {
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900 bg-grid-pattern flex items-center justify-center p-4'>
       {/* Background decorations */}
@@ -27,12 +27,10 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Auth Card */}
         <div className='bg-white dark:bg-gray-800 rounded-2xl shadow-2xl backdrop-blur-lg bg-opacity-90 dark:bg-opacity-90 border border-gray-200 dark:border-gray-700 overflow-hidden opacity-0 animate-fadeInUp delay-200'>
           <div className='p-8'>
-            <LoginPanel />
+            <RegisterPanel />
 
-            {/* Divider + Register CTA */}
             <div className='mt-6 flex items-center gap-3'>
               <div className='flex-1 h-px bg-gray-200 dark:bg-gray-700'></div>
               <span className='text-sm text-gray-500 dark:text-gray-400'>
@@ -43,13 +41,13 @@ export default function LoginPage() {
 
             <div className='mt-6 text-center'>
               <p className='text-sm text-gray-600 dark:text-gray-300'>
-                Nemate nalog?
+                Imate nalog?
               </p>
               <a
-                href='/registration'
+                href='/login'
                 className='mt-2 inline-block px-6 py-2 rounded-full font-medium text-sm bg-gradient-to-r from-teal-500 to-blue-600 text-white shadow-md hover:opacity-95 transition-opacity'
               >
-                Napravite nalog
+                Prijavi se
               </a>
             </div>
           </div>

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+// rc-tooltip styles for Tooltip component used in some pages
+import "rc-tooltip/assets/bootstrap.css";
 import "./globals.css";
 
 import Header from "@/components/header/header";
@@ -28,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang='sr' className='scroll-smooth'>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased text-white bg-gradient-to-b from-[#0b0b0d] to-[#111214]`}
       >
         <Header />
         {children}

@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { DocumentPlusIcon } from "@heroicons/react/24/outline";
 import { getUserFromStorage } from "../../lib/api";
 
+import toast, { Toaster } from "react-hot-toast";
+
 export default function Experience() {
   const router = useRouter();
 
@@ -29,14 +31,14 @@ export default function Experience() {
     setLoading(true);
 
     try {
-      // Uzmi korisničke podatke iz localStorage
+      // Take from storage info
       const user = getUserFromStorage();
       if (!user) {
-        alert("Morate biti ulogovani da biste dodali iskustvo!");
+        toast.error("Morate biti ulogovani da biste dodali iskustvo!");
         return;
       }
 
-      // Pripremi podatke za API
+      // Setup data for API
       const postData = {
         userId: user.id,
         ime: user.ime,
@@ -46,7 +48,6 @@ export default function Experience() {
         kategorija: formData.kategorija,
       };
 
-      // Pošalji na API - koristi relativnu putanju za production
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
@@ -56,12 +57,17 @@ export default function Experience() {
       });
 
       if (response.ok) {
-        alert("Iskustvo je uspješno dodano!");
+        // show a longer toast and pause briefly so users see it before redirect
+        toast.success("Iskustvo je uspješno dodano!", { duration: 2000 });
+
+        // small delay so the toast is visible before navigation
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
         // Reset forme
         setFormData({ kategorija: "", naslov: "", tekst: "" });
 
-        // Redirect to the appropriate category page
-        const categorySlug = formData.kategorija
+        // Redirect to the appropriate category page (use postData to get the chosen category)
+        const categorySlug = postData.kategorija
           .toLowerCase()
           .replace(/\s+/g, "-");
         router.push(`/kategorije/${categorySlug}`);
@@ -69,8 +75,7 @@ export default function Experience() {
         throw new Error("Greška pri dodavanju iskustva");
       }
     } catch (error) {
-      console.error("Greška:", error);
-      alert("Greška pri dodavanju iskustva!");
+      toast.error("Greška pri dodavanju iskustva!" + error);
     } finally {
       setLoading(false);
     }
@@ -169,6 +174,7 @@ export default function Experience() {
           </form>
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

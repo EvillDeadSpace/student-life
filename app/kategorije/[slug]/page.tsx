@@ -6,33 +6,23 @@ import {
   getPostByTitle,
   type Post,
   getUserFromStorage,
+  createSlug,
 } from "../../../lib/api";
 import {
   ArrowLeftIcon,
   CalendarIcon,
   UserIcon,
   TagIcon,
+  ClipboardDocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
 // Components for likes
 import LikeButton from "@/components/LikeComponents/LikeComponents";
 
-// Format date helper function
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return "Nepoznat datum";
-
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("bs-BA", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  } catch {
-    return "Nepoznat datum";
-  }
-};
+//tooltip component
+import Tooltip from "rc-tooltip";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function SlugPage() {
   const params = useParams();
@@ -53,6 +43,7 @@ export default function SlugPage() {
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [visible, setVisible] = useState(false);
   useEffect(() => {
     const fetchPost = async () => {
       if (!slug) return;
@@ -139,7 +130,13 @@ export default function SlugPage() {
     const userId = currentUser?.id ?? null;
 
     if (!userId) {
-      alert("Morate biti prijavljeni da biste ostavili komentar.");
+      toast.error("Mora te se ulogovati kako bih posavili komentar ", {
+        duration: 4000,
+        style: {
+          textAlign: "center",
+        },
+      });
+
       return;
     }
 
@@ -159,8 +156,19 @@ export default function SlugPage() {
     } catch (err) {
       console.error("Error posting comment", err);
     } finally {
+      toast.success("Vas komentar je postavljen");
       setSubmitting(false);
     }
+  };
+
+  // Function handler when press on button to save text
+  const handleOnClickShareButton = () => {
+    setVisible(true);
+
+    const naslov = window.location.href;
+    navigator.clipboard.writeText(naslov);
+
+    setTimeout(() => setVisible(false), 1500);
   };
 
   return (
@@ -224,13 +232,18 @@ export default function SlugPage() {
               </div>
               <div className='flex items-center'>
                 <CalendarIcon className='w-5 h-5 mr-2' />
-                <span>{formatDate(post.datum)}</span>
+                <Tooltip
+                  placement='top'
+                  trigger={["hover"]}
+                  overlay={<p className='text-white'>YYYY-MM-DD</p>}
+                >
+                  <span>{post.datum?.slice(0, 10)}</span>
+                </Tooltip>
               </div>
             </div>
           </div>
         </div>
       </div>
-
       {/* Main Content */}
       <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Article Content */}
@@ -249,23 +262,40 @@ export default function SlugPage() {
           {/* Button  */}
           <LikeButton postId={post.id} />
 
-          <button className='inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105'>
-            <svg
-              className='w-5 h-5 mr-2'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
+          <Tooltip
+            placement='top'
+            overlay={
+              <div className='flex flex-col items-center text-sm  text-white  px-4 py-2 rounded-4xl shadow-lg animate-fade-in'>
+                <p>Ovaj clanak je kopiran</p>
+                <ClipboardDocumentCheckIcon
+                  className='w-6 h-6 mt-1'
+                  width={16}
+                  height={16}
+                />
+              </div>
+            }
+            visible={visible}
+          >
+            <button
+              onClick={handleOnClickShareButton}
+              className='inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105'
             >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z'
-              />
-            </svg>
-            Podijeli
-          </button>
-
+              <svg
+                className='w-5 h-5 mr-2'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                  strokeWidth={2}
+                  d='M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z'
+                />
+              </svg>
+              Podijeli
+            </button>
+          </Tooltip>
           <button className='inline-flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-white hover:shadow-lg transition-all duration-300 transform hover:scale-105'>
             <svg
               className='w-5 h-5 mr-2'
@@ -329,7 +359,7 @@ export default function SlugPage() {
                             : "Anonim"}
                         </h4>
                         <p className='text-sm text-gray-500 dark:text-gray-400'>
-                          {formatDate(komentar.createdAt)}
+                          {komentar.createdAt.slice(0, 10)}
                         </p>
                       </div>
                     </div>
@@ -461,6 +491,7 @@ export default function SlugPage() {
           </div>
         </div>
       </div>
+      <Toaster />;
     </div>
   );
 }

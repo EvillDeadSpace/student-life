@@ -30,6 +30,22 @@
   }
 }
 
+/* rc-tooltip dark theme overrides */
+.rc-tooltip {
+  color: #fff; /* tooltip text color */
+}
+.rc-tooltip-inner {
+  /*  background-color: rgba(20, 20, 22, 0.95) !important;  near black */
+  color: #fff !important;
+  border-radius: 28px !important;
+  padding: 3px 3px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  font-size: 0.95rem !important;
+}
+.rc-tooltip-arrow .rc-tooltip-arrow-content {
+  background-color: rgba(20, 20, 22, 0.95) !important;
+}
+
 @keyframes gradient-x {
   0%,
   100% {
