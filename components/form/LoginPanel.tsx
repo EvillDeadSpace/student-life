@@ -48,6 +48,7 @@ export default function LoginPanel() {
 
       saveUserToStorage(data);
       toast.success("Uspješno ste prijavljeni");
+      window.location.reload();
       router.push("/");
     } catch (err) {
       toast.error(
