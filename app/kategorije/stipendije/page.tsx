@@ -31,13 +31,10 @@ export default function StipendijePage() {
   useEffect(() => {
     fetchData();
 
-    // Auto-refresh kada korisnik vrati focus na tab
     const handleFocus = () => {
-      console.log("Page focused - refreshing data...");
       fetchData();
     };
 
-    // Auto-refresh svakih 30 sekundi
     const interval = setInterval(() => {
       console.log("Auto-refresh interval - fetching new data...");
       fetchData();

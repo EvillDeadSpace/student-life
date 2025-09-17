@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     }
 
     const postId = Number(rawPostId);
-    const userId = Number(rawUserId); // temporary for tests
+    const userId = Number(rawUserId);
 
     if (Number.isNaN(postId) || Number.isNaN(userId)) {
       console.log("POST /api/likes invalid numeric fields", {

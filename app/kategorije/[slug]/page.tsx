@@ -6,7 +6,6 @@ import {
   getPostByTitle,
   type Post,
   getUserFromStorage,
-  createSlug,
 } from "../../../lib/api";
 import {
   ArrowLeftIcon,

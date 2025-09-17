@@ -37,11 +37,11 @@ export default function FakultetPage() {
       fetchData();
     };
 
-    // Auto-refresh svakih 30 sekundi
+    // Auto-refresh
     const interval = setInterval(() => {
       console.log("Auto-refresh interval - fetching new data...");
       fetchData();
-    }, 30000); // 30 sekundi
+    }, 30000);
 
     window.addEventListener("focus", handleFocus);
 
@@ -68,7 +68,6 @@ export default function FakultetPage() {
     );
   }
 
-  console.log(data.length);
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}

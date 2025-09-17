@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-// rc-tooltip styles for Tooltip component used in some pages
+
 import "rc-tooltip/assets/bootstrap.css";
 import "./globals.css";
 

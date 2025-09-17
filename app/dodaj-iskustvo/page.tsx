@@ -9,7 +9,6 @@ import toast, { Toaster } from "react-hot-toast";
 export default function Experience() {
   const router = useRouter();
 
-  // State za formu
   const [formData, setFormData] = useState({
     kategorija: "",
     naslov: "",
@@ -17,7 +16,6 @@ export default function Experience() {
   });
   const [loading, setLoading] = useState(false);
 
-  // Kategorije
   const kategorije = [
     "Fakultet",
     "Studentski dom",
@@ -25,7 +23,6 @@ export default function Experience() {
     "Praksa i posao",
   ];
 
-  // Submit funkcija
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
