@@ -1,14 +1,25 @@
 "use client";
 import { useState, useEffect } from "react";
 import TextComponent from "@/components/fakultet/TextComponent";
-import { getAllPost, type Post } from "@/lib/api";
-import { HomeIcon, ArrowLeftIcon, PlusIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
+import { getAllPost } from "@/lib/api";
+import type { Post } from "@/lib/api";
+import {
+  HomeIcon,
+  ArrowLeftIcon,
+  PlusIcon,
+  ArrowPathIcon,
+} from "@heroicons/react/24/outline";
 import Link from "next/link";
+
+import CitySelect from "@/components/ui/CitySelect";
+import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
 
 export default function StudentskiDomPage() {
   const [data, setData] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const [selectCity, setSelectedCity] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -34,11 +45,11 @@ export default function StudentskiDomPage() {
       fetchData();
     }, 30000);
 
-    window.addEventListener('focus', handleFocus);
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
@@ -46,6 +57,8 @@ export default function StudentskiDomPage() {
     setRefreshing(true);
     fetchData();
   };
+
+  const dataToShow = selectCityFunction(data, selectCity);
 
   if (loading) {
     return (
@@ -76,8 +89,10 @@ export default function StudentskiDomPage() {
                 disabled={refreshing}
                 className='bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center disabled:opacity-50'
               >
-                <ArrowPathIcon className={`w-5 h-5 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Osvježava...' : 'Osvježi'}
+                <ArrowPathIcon
+                  className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`}
+                />
+                {refreshing ? "Osvježava..." : "Osvježi"}
               </button>
               <Link
                 href='/dodaj-iskustvo?category=studentski-dom'
@@ -107,17 +122,14 @@ export default function StudentskiDomPage() {
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
+          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg content-center'>
+            <div className='text-4xl font-bold text-gray-900 dark:text-white'>
               {data.length}
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Objava</div>
           </div>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              100%
-            </div>
-            <div className='text-gray-600 dark:text-gray-300'>Dostupnost</div>
+          <div className='text-m bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
+            <CitySelect value={selectCity} onChange={setSelectedCity} />
           </div>
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
@@ -128,9 +140,7 @@ export default function StudentskiDomPage() {
         </div>
 
         <div className='space-y-6'>
-          {data.map((item) => (
-            <TextComponent key={item.id} posts={[item]} />
-          ))}
+          <TextComponent posts={dataToShow} />
         </div>
 
         {data.length === 0 && (

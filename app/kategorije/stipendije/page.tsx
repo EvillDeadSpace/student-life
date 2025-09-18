@@ -10,11 +10,15 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
+import CitySelect from "@/components/ui/CitySelect";
+import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
+
 export default function StipendijePage() {
   const [data, setData] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const fetchData = async () => {
     try {
       setRefreshing(true);
@@ -64,19 +68,24 @@ export default function StipendijePage() {
     );
   }
 
+  const postToShow: Post[] = selectCityFunction(data, selectedCity) as Post[];
+
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
+      {/* Header */}
       <div className='bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
           <div className='flex items-center justify-between'>
-            <Link
-              href='/kategorije'
-              className='flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors'
-            >
-              <ArrowLeftIcon className='w-5 h-5 mr-2' />
-              Nazad na kategorije
-            </Link>
-            <div className='flex items-center space-x-3'>
+            <div className='flex items-center space-x-4'>
+              <Link
+                href='/kategorije'
+                className='flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors'
+              >
+                <ArrowLeftIcon className='w-5 h-5 mr-2' />
+                Nazad na kategorije
+              </Link>
+            </div>
+            <div className='flex space-x-3'>
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
@@ -85,20 +94,17 @@ export default function StipendijePage() {
                 <ArrowPathIcon
                   className={`w-5 h-5 mr-2 ${refreshing ? "animate-spin" : ""}`}
                 />
-                {refreshing ? "Osvježava..." : "Osvježi"}
+                {refreshing ? "Osvežava..." : "Osveži"}
               </button>
-              <Link
-                href='/dodaj-iskustvo?category=stipendije'
-                className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'
-              >
+              <button className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'>
                 <PlusIcon className='w-5 h-5 mr-2' />
                 Podjeli iskustvo
-              </Link>
+              </button>
             </div>
           </div>
 
           <div className='mt-6 flex items-center'>
-            <div className='bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-3 mr-4'>
+            <div className='bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-3 mr-4'>
               <CurrencyDollarIcon className='w-8 h-8 text-white' />
             </div>
             <div>
@@ -106,36 +112,47 @@ export default function StipendijePage() {
                 Stipendije
               </h1>
               <p className='text-gray-600 dark:text-gray-300 mt-1'>
-                Informacije o stipendijama i finansijskoj podršci
+                Najbrzi nacin da saznate sve sto vas zanima za stipendije
               </p>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Content */}
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+        {/* Stats */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
+          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg content-center'>
+            <div className='text-4xl font-bold text-gray-900 dark:text-white justify-center'>
               {data.length}
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Objava</div>
           </div>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {data.reduce((acc, post) => acc + post.comments, 0)}
-            </div>
-            <div className='text-gray-600 dark:text-gray-300'>Komentara</div>
+
+          {/* Select city menu */}
+          <div className='text-m bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
+            <CitySelect value={selectedCity} onChange={setSelectedCity} />
           </div>
+
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {data.reduce((acc, post) => acc + (Number(post.lajkovi) || 0), 0)}
+              <p>coming soon...</p>
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Sviđanja</div>
           </div>
         </div>
 
-        <TextComponent posts={data} />
+        {/* Posts */}
+
+        <TextComponent posts={postToShow} />
+
+        {/* Load more button */}
+        <div className='text-center mt-8'>
+          <button className='bg-white dark:bg-gray-800 border-2 border-teal-500 text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white dark:hover:bg-teal-500 dark:hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
+            Učitaj više objava
+          </button>
+        </div>
       </div>
     </div>
   );

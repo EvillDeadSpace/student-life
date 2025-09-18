@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import TextComponent from "@/components/fakultet/TextComponent";
+import CitySelect from "@/components/ui/CitySelect";
 import { getAllPost, type Post } from "@/lib/api";
 import {
   AcademicCapIcon,
@@ -9,11 +10,13 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
 
 export default function FakultetPage() {
   const [data, setData] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -59,6 +62,8 @@ export default function FakultetPage() {
     setRefreshing(true);
     fetchData();
   };
+
+  const postToShow: Post[] = selectCityFunction(data, selectedCity) as Post[];
 
   if (loading) {
     return (
@@ -124,21 +129,21 @@ export default function FakultetPage() {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
         {/* Stats */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
+          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg content-center'>
+            <div className='text-4xl font-bold text-gray-900 dark:text-white justify-center'>
               {data.length}
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Objava</div>
           </div>
+
+          {/* Select city menu */}
+          <div className='text-m bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
+            <CitySelect value={selectedCity} onChange={setSelectedCity} />
+          </div>
+
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
               <p>coming soon...</p>
-            </div>
-            <div className='text-gray-600 dark:text-gray-300'>Komentara</div>
-          </div>
-          <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              <p>coming soon...</p>{" "}
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Sviđanja</div>
           </div>
@@ -146,7 +151,7 @@ export default function FakultetPage() {
 
         {/* Posts */}
 
-        <TextComponent posts={data} />
+        <TextComponent posts={postToShow} />
 
         {/* Load more button */}
         <div className='text-center mt-8'>

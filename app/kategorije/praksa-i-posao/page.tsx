@@ -10,11 +10,14 @@ import {
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
+import CitySelect from "@/components/ui/CitySelect";
+import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
+
 export default function PraksaPosaoPage() {
   const [data, setData] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const fetchData = async () => {
     try {
       setRefreshing(true);
@@ -62,6 +65,8 @@ export default function PraksaPosaoPage() {
       </div>
     );
   }
+
+  const postToShow: Post[] = selectCityFunction(data, selectedCity) as Post[];
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
@@ -113,7 +118,7 @@ export default function PraksaPosaoPage() {
       </div>
 
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 '>
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
               {data.length}
@@ -121,10 +126,9 @@ export default function PraksaPosaoPage() {
             <div className='text-gray-600 dark:text-gray-300'>Objava</div>
           </div>
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-            <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {data.reduce((acc, post) => acc + post.comments, 0)}
+            <div className='text-m font-bold text-gray-900 dark:text-white'>
+              <CitySelect value={selectedCity} onChange={setSelectedCity} />
             </div>
-            <div className='text-gray-600 dark:text-gray-300'>Komentara</div>
           </div>
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
@@ -133,7 +137,7 @@ export default function PraksaPosaoPage() {
             <div className='text-gray-600 dark:text-gray-300'>Sviđanja</div>
           </div>
         </div>
-        <TextComponent posts={data} />
+        <TextComponent posts={postToShow} />
       </div>
     </div>
   );
