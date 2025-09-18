@@ -18,8 +18,11 @@ export default function FakultetPage() {
   const fetchData = async () => {
     try {
       setRefreshing(true);
+
+      // Sort but need to fix this not good working
       const posts = await getAllPost("fakultet");
-      setData(posts);
+      const sortPost = [...posts].sort((a, b) => b.lajkovi - a.lajkovi);
+      setData(sortPost);
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -142,6 +145,7 @@ export default function FakultetPage() {
         </div>
 
         {/* Posts */}
+
         <TextComponent posts={data} />
 
         {/* Load more button */}

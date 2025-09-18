@@ -22,7 +22,7 @@ export interface Post {
   tekst?: string;
   content?: string;
   lokacija?: string;
-  likes: number;
+  lajkovi: number;
   comments: number;
   user?: {
     lokacija: string;
