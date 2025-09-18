@@ -128,7 +128,7 @@ export default function PraksaPosaoPage() {
           </div>
           <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
             <div className='text-2xl font-bold text-gray-900 dark:text-white'>
-              {data.reduce((acc, post) => acc + post.likes, 0)}
+              {data.reduce((acc, post) => acc + (Number(post.lajkovi) || 0), 0)}
             </div>
             <div className='text-gray-600 dark:text-gray-300'>Sviđanja</div>
           </div>
