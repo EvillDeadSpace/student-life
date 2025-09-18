@@ -87,7 +87,7 @@ export default function Experience() {
       </div>
 
       {/* Main Card */}
-      <div className='relative w-full max-w-2xl'>
+      <div className='relative w-full max-w-2xl transition-all duration-500 transform  opacity-0 animate-fadeInUp cursor-pointer'>
         {/* Header */}
         <div className='text-center mb-8'>
           <div className='inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl shadow-lg mb-4 transform hover:scale-105 transition-transform duration-300'>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
+import { usePathname } from "next/navigation";
 interface LinkComponentsProps {
   href: string;
   text: string;
@@ -15,9 +15,9 @@ export default function LinkComponents({
   href,
   text,
   isMobile = false,
-  isActive = false,
   className,
 }: LinkComponentsProps) {
+  const pathname = usePathname();
   if (className) {
     return (
       <Link href={href} className={className}>
@@ -28,14 +28,13 @@ export default function LinkComponents({
 
   const baseClasses =
     "hover:text-teal-600 dark:hover:text-teal-400 rounded-md font-medium transition-colors";
-
-  const activeClasses = "text-gray-900 dark:text-white";
+  const activeClasses = "text-white bg-teal-600";
   const inactiveClasses = "text-gray-600 dark:text-gray-300";
 
   const desktopClasses = "px-3 py-2 text-sm";
   const mobileClasses = "block px-3 py-2 text-base";
 
-  const colorClasses = isActive ? activeClasses : inactiveClasses;
+  const colorClasses = pathname === href ? activeClasses : inactiveClasses;
   const sizeClasses = isMobile ? mobileClasses : desktopClasses;
 
   const classes = `${baseClasses} ${colorClasses} ${sizeClasses}`;
