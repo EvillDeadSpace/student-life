@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Post } from "@/lib/api";
+import { createSlug, type Post } from "@/lib/api";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -103,9 +103,7 @@ export default function ProfilePostComponents({ posts = [], onDelete }: Props) {
 
             <div className='flex items-center gap-2'>
               <Link
-                href={`/kategorije/${encodeURIComponent(
-                  p.naslov ?? p.title ?? ""
-                )}`}
+                href={`/kategorije/${createSlug(p.naslov ?? p.title ?? "")}`}
                 className='inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-teal-500 to-blue-600 text-white text-sm rounded-full shadow'
               >
                 Pogledaj
