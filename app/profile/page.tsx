@@ -1,5 +1,5 @@
 "use client";
-
+// profile page
 import { getAllPostByUser, getUserFromStorage, type Post } from "@/lib/api";
 import { useEffect, useState } from "react";
 import ProfileCard from "@/components/profile/ProfileCard";
