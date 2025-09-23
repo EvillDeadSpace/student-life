@@ -60,6 +60,30 @@ export async function getAllPost(category: string): Promise<Post[]> {
   }
 }
 
+// Fetch post by user id
+export async function getAllPostByUser(
+  userId: string | number | undefined
+): Promise<Post[]> {
+  try {
+    if (!userId) return [];
+    // Use relative path so it works in production too
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const res = await fetch(`${baseUrl}/api/userpost?userId=${userId}`, {
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      console.error("Failed to fetch user posts:", res.statusText);
+      return [];
+    }
+    const data = await res.json();
+    if (!Array.isArray(data)) return [];
+    return data as Post[];
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
+}
+
 // Register new user
 export async function register(userData: User) {
   try {
@@ -182,6 +206,30 @@ export async function toggleLike(postId: number, userId: number) {
     console.error("toggleLike error response:", res.status, json);
   }
   return json;
+}
+
+export async function deletePost(postId: number) {
+  try {
+    // use leading slash so path works from any route
+    const res = await fetch(`/api/userpost?postId=${postId}`, {
+      method: "DELETE",
+    });
+
+    // attempt to parse JSON (endpoint returns deleted post)
+    const json = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      console.error("Problem with deleting", res.status, json);
+      throw new Error(
+        (json && (json.error || json.message)) || "Delete failed"
+      );
+    }
+
+    return json;
+  } catch (err) {
+    console.error("deletePost error:", err);
+    throw err;
+  }
 }
 
 export async function getNumberComments() {}
