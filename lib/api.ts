@@ -254,5 +254,25 @@ export async function deletePost(postId: number) {
 }
 
 // Fetch all users
+export async function fetchAllStudent(): Promise<Post[]> {
+  try {
+    const base =
+      typeof window !== "undefined"
+        ? "" // client: relative ok
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
 
+    const res = await fetch(`${base}/api/user`, {
+      cache: "no-store",
+      headers: { "Cache-Control": "no-cache" },
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error("Error fetching posts:", err);
+    return [];
+  }
+}
 export async function getNumberComments() {}

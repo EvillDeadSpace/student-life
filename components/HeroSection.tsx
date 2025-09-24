@@ -1,10 +1,10 @@
-import { heroPost } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
+import HeroCounterNumber from "./HeroCounterNumber";
+import { Suspense } from "react";
+import HeroCounterFallback from "./HeroCounterFallback";
 
 export default async function HeroSection() {
-  const post = await heroPost();
-  const finalPost = Math.floor(post.length / 10) * 10;
   return (
     <section className='h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
@@ -42,32 +42,9 @@ export default async function HeroSection() {
             </div>
 
             {/* Stats or features */}
-            <div className='mt-16 grid grid-cols-3 gap-8 text-center lg:text-left animate-fadeInUp delay-500'>
-              <div className='group cursor-pointer transform hover:scale-105 transition-all duration-300'>
-                <div className='text-3xl md:text-4xl font-bold text-teal-600 dark:text-teal-400 group-hover:text-teal-500 transition-colors duration-300'>
-                  {finalPost}+
-                </div>
-                <div className='text-base text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-300'>
-                  Iskustava
-                </div>
-              </div>
-              <div className='group cursor-pointer transform hover:scale-105 transition-all duration-300'>
-                <div className='text-3xl md:text-4xl font-bold text-teal-600 dark:text-teal-400 group-hover:text-teal-500 transition-colors duration-300'>
-                  200+
-                </div>
-                <div className='text-base text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-300'>
-                  Studenata
-                </div>
-              </div>
-              <div className='group cursor-pointer transform hover:scale-105 transition-all duration-300'>
-                <div className='text-3xl md:text-4xl font-bold text-teal-600 dark:text-teal-400 group-hover:text-teal-500 transition-colors duration-300'>
-                  50+
-                </div>
-                <div className='text-base text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors duration-300'>
-                  Fakulteta
-                </div>
-              </div>
-            </div>
+            <Suspense fallback={<HeroCounterFallback />}>
+              <HeroCounterNumber />
+            </Suspense>
           </div>
 
           {/* Right side - Image */}

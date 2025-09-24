@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import TextComponent from "@/components/fakultet/TextComponent";
 import CitySelect from "@/components/ui/CitySelect";
 import { getAllPost, type Post } from "@/lib/api";
@@ -12,12 +12,12 @@ import {
 import Link from "next/link";
 import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
 import { useRouter } from "next/navigation";
+import HeroCounterFallback from "@/components/HeroCounterFallback";
 
 export default function FakultetPage() {
   const routing = useRouter();
 
   const [data, setData] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
@@ -32,7 +32,6 @@ export default function FakultetPage() {
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
-      setLoading(false);
       setRefreshing(false);
     }
   };
@@ -67,17 +66,6 @@ export default function FakultetPage() {
   };
 
   const postToShow: Post[] = selectCityFunction(data, selectedCity) as Post[];
-
-  if (loading) {
-    return (
-      <div className='min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-teal-600'></div>
-          <p className='mt-4 text-gray-600 dark:text-gray-400'>Loading...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
@@ -156,9 +144,9 @@ export default function FakultetPage() {
         </div>
 
         {/* Posts */}
-
-        <TextComponent posts={postToShow} />
-
+        <Suspense fallback={<HeroCounterFallback />}>
+          <TextComponent posts={postToShow} />
+        </Suspense>
         {/* Load more button */}
         <div className='text-center mt-8'>
           <button className='bg-white dark:bg-gray-800 border-2 border-teal-500 text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white dark:hover:bg-teal-500 dark:hover:text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl'>
