@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic";
-
 import { heroPost } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";

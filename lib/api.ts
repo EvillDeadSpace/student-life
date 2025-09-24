@@ -34,31 +34,19 @@ export async function heroPost(): Promise<Post[]> {
   try {
     const base =
       typeof window !== "undefined"
-        ? "" // client: relative path ok
-        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: absolute needed in some envs
+        ? "" // client: relative ok
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
 
-    const response = await fetch(`${base}/api/posts`, {
+    const res = await fetch(`${base}/api/posts`, {
       cache: "no-store",
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
+      headers: { "Cache-Control": "no-cache" },
     });
 
-    if (!response.ok) {
-      console.error(
-        "Failed to fetch posts:",
-        response.status,
-        await response.text()
-      );
-      return [];
-    }
-
-    const data = await response.json();
+    if (!res.ok) return [];
+    const data = await res.json();
     return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.error("Error fetching posts:", error);
+  } catch (err) {
+    console.error("Error fetching posts:", err);
     return [];
   }
 }
