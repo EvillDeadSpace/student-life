@@ -30,6 +30,39 @@ export interface Post {
 }
 
 // Fetch posts filtered by category
+export async function heroPost(): Promise<Post[]> {
+  try {
+    const base =
+      typeof window !== "undefined"
+        ? "" // client: relative path ok
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: absolute needed in some envs
+
+    const response = await fetch(`${base}/api/posts`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Failed to fetch posts:",
+        response.status,
+        await response.text()
+      );
+      return [];
+    }
+
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+    return [];
+  }
+}
+// Fetch posts filtered by category
 export async function getAllPost(category: string): Promise<Post[]> {
   try {
     // Use relative path for API calls (works both locally and in production)
@@ -231,5 +264,7 @@ export async function deletePost(postId: number) {
     throw err;
   }
 }
+
+// Fetch all users
 
 export async function getNumberComments() {}
