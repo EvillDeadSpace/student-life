@@ -95,7 +95,7 @@ export default function StudentskiDomPage() {
                 {refreshing ? "Osvježava..." : "Osvježi"}
               </button>
               <Link
-                href='/dodaj-iskustvo?category=studentski-dom'
+                href='/dodaj-iskustvo?cat=Studentski dom'
                 className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'
               >
                 <PlusIcon className='w-5 h-5 mr-2' />

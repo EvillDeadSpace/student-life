@@ -12,8 +12,11 @@ import Link from "next/link";
 
 import CitySelect from "@/components/ui/CitySelect";
 import { selectCityFunction } from "@/components/ui/FunctionToHandleCity";
+import { useRouter } from "next/navigation";
 
 export default function StipendijePage() {
+  const routing = useRouter();
+
   const [data, setData] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -96,7 +99,10 @@ export default function StipendijePage() {
                 />
                 {refreshing ? "Osvežava..." : "Osveži"}
               </button>
-              <button className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'>
+              <button
+                className='bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-600 hover:to-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center'
+                onClick={() => routing.push("/dodaj-iskustvo?cat=Stipendije")}
+              >
                 <PlusIcon className='w-5 h-5 mr-2' />
                 Podjeli iskustvo
               </button>

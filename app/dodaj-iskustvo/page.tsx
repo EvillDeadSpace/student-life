@@ -1,12 +1,14 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DocumentPlusIcon } from "@heroicons/react/24/outline";
 import { getUserFromStorage } from "../../lib/api";
 
 import toast, { Toaster } from "react-hot-toast";
 
 export default function Experience() {
+  const searchParams = useSearchParams();
+
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -22,6 +24,14 @@ export default function Experience() {
     "Stipendije",
     "Praksa i posao",
   ];
+
+  useEffect(() => {
+    const cat = searchParams.get("cat");
+
+    if (cat) {
+      setFormData((prev) => ({ ...prev, kategorija: cat }));
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
