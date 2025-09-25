@@ -63,7 +63,7 @@ export async function getAllPost(
 
     // use category-based tag to allow server-side revalidation by tag
     const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
-    simulateLatency(2000);
+
     const response = await fetch(apiUrl, {
       cache: "force-cache",
       next: { revalidate: 10, tags: [`posts:${categorySlug}`] },
@@ -78,7 +78,6 @@ export async function getAllPost(
       return [];
     }
 
-    simulateLatency(2000);
     const data: Post[] = await response.json();
 
     const filtered = data.filter((post: Post) => {

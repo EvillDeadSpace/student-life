@@ -16,7 +16,7 @@ export default async function StipendijePage(props: any) {
   const searchParams = props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
-  const postsPromise = getAllPost("studentski dom", city);
+  const postsPromise = getAllPost("stipendije", city);
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}
