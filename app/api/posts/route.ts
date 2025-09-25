@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -34,6 +34,13 @@ export async function POST(req: Request) {
     const categorySlug = kategorija.toLowerCase().replace(/\s+/g, "-");
     revalidatePath(`/kategorije/${categorySlug}`);
     revalidatePath("/kategorije");
+    // Also revalidate any fetches tagged for this category
+    try {
+      revalidateTag(`posts:${categorySlug}`);
+    } catch (err) {
+      // revalidateTag may not be available in older Next versions or during static builds
+      console.warn("revalidateTag failed:", err);
+    }
 
     return NextResponse.json(post);
   } catch (error) {

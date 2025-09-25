@@ -35,11 +35,13 @@ export async function heroPost(): Promise<Post[]> {
     const base =
       typeof window !== "undefined"
         ? "" // client: relative ok
-        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     const res = await fetch(`${base}/api/posts`, {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache" },
+      cache: "force-cache",
+      next: {
+        revalidate: 10,
+      },
     });
 
     if (!res.ok) return [];
@@ -53,21 +55,27 @@ export async function heroPost(): Promise<Post[]> {
 // Fetch posts filtered by category
 export async function getAllPost(category: string): Promise<Post[]> {
   try {
-    // Use relative path for API calls (works both locally and in production)
-    const response = await fetch("/api/posts", {
-      cache: "no-store", // Ne keširaj podatke
-      headers: {
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const apiUrl = `${baseUrl}/api/posts`;
+
+    // use category-based tag to allow server-side revalidation by tag
+    const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
+    simulateLatency(2000);
+    const response = await fetch(apiUrl, {
+      cache: "force-cache",
+      next: { revalidate: 10, tags: [`posts:${categorySlug}`] },
     });
 
     if (!response.ok) {
-      console.error("Failed to fetch posts:", response.statusText);
+      console.error(
+        "❌ Failed to fetch posts:",
+        response.status,
+        response.statusText
+      );
       return [];
     }
 
+    simulateLatency(2000);
     const data: Post[] = await response.json();
 
     const filtered = data.filter(
@@ -76,7 +84,7 @@ export async function getAllPost(category: string): Promise<Post[]> {
 
     return filtered;
   } catch (error) {
-    console.error("Error fetching posts:", error);
+    console.error("❌ Error fetching posts:", error);
     return [];
   }
 }
@@ -261,14 +269,16 @@ export async function fetchAllStudent(): Promise<Post[]> {
         ? "" // client: relative ok
         : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
 
+    simulateLatency(2000);
     const res = await fetch(`${base}/api/user`, {
-      cache: "no-store",
-      headers: { "Cache-Control": "no-cache" },
+      cache: "force-cache",
+      next: { revalidate: 60 },
     });
 
     if (!res.ok) return [];
 
     const data = await res.json();
+
     return Array.isArray(data) ? data : [];
   } catch (err) {
     console.error("Error fetching posts:", err);
@@ -276,3 +286,7 @@ export async function fetchAllStudent(): Promise<Post[]> {
   }
 }
 export async function getNumberComments() {}
+
+function simulateLatency(ms = 2000) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

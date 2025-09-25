@@ -1,12 +1,10 @@
-"use client";
-
-import { useRouter } from "next/navigation";
 import {
   AcademicCapIcon,
   HomeIcon,
   CurrencyDollarIcon,
   BriefcaseIcon,
 } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 const categories = [
   {
@@ -51,13 +49,7 @@ const categories = [
   },
 ];
 
-export default function Categories() {
-  const router = useRouter();
-
-  const handleCategoryClick = (slug: string) => {
-    router.push(`/kategorije/${slug}`);
-  };
-
+export default async function Categories() {
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900 bg-grid-pattern'>
       {/* Hero Section */}
@@ -81,9 +73,9 @@ export default function Categories() {
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16'>
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8'>
           {categories.map((category, index) => (
-            <div
+            <Link
               key={category.id}
-              onClick={() => handleCategoryClick(category.slug)}
+              href={`kategorije/${category.slug}`}
               className={`group relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-3xl transition-all duration-500 transform hover:-translate-y-2 opacity-0 animate-fadeInUp cursor-pointer`}
               style={{ animationDelay: `${(index + 1) * 0.1}s` }}
             >
@@ -133,7 +125,7 @@ export default function Categories() {
               {/* Decorative Elements */}
               <div className='absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-white/10 to-transparent rounded-full blur-xl'></div>
               <div className='absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-lg'></div>
-            </div>
+            </Link>
           ))}
         </div>
 

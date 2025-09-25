@@ -70,14 +70,21 @@ export default function Experience() {
         // small delay so the toast is visible before navigation
         await new Promise((resolve) => setTimeout(resolve, 1500));
 
-        // Reset forme
+        // Reset form
         setFormData({ kategorija: "", naslov: "", tekst: "" });
 
         // Redirect to the appropriate category page (use postData to get the chosen category)
         const categorySlug = postData.kategorija
           .toLowerCase()
           .replace(/\s+/g, "-");
-        router.push(`/kategorije/${categorySlug}`);
+
+        await router.push(`/kategorije/${categorySlug}`);
+
+        try {
+          router.refresh();
+        } catch (err) {
+          console.warn("router.refresh failed:", err);
+        }
       } else {
         throw new Error("Greška pri dodavanju iskustva");
       }
