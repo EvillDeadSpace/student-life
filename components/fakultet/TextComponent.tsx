@@ -3,8 +3,14 @@ import Link from "next/link";
 import { createSlug, type Post } from "../../lib/api";
 import LikeButton from "../LikeComponents/LikeComponents";
 
-// Main CARD
-function TextComponent({ posts }: { posts: Post[] }) {
+// Main CARD async component
+async function TextComponent({
+  postsPromise,
+}: {
+  postsPromise: Promise<Post[]>;
+}) {
+  const posts = await postsPromise;
+
   return (
     <div>
       <div className='space-y-6'>
