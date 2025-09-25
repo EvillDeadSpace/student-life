@@ -58,8 +58,19 @@ export async function getAllPost(
   city?: string
 ): Promise<Post[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const apiUrl = `${baseUrl}/api/posts`;
+    // Resolve base URL correctly for client vs server.
+    // On the client we can use a relative path. On the server we must use an absolute URL
+    // and prefer the environment-provided site/api URL (set this in production).
+    const baseUrlClient = typeof window !== "undefined" ? "" : undefined;
+    const envBase =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_API_URL;
+    const baseUrl =
+      baseUrlClient === ""
+        ? ""
+        : (envBase || "http://localhost:3000").replace(/\/$/, "");
+    const apiUrl = baseUrl ? `${baseUrl}/api/posts` : `/api/posts`;
 
     // use category-based tag to allow server-side revalidation by tag
     const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
