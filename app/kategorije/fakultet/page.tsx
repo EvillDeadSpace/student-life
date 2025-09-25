@@ -10,11 +10,9 @@ import { Suspense } from "react";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 import CountLoader from "@/components/fakultet/CountLoader";
 
-export default async function FakultetPage({
-  searchParams,
-}: {
-  searchParams?: { city?: string };
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function FakultetPage(props: any) {
+  const searchParams = props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
   const postsPromise = getAllPost("fakultet", city);

@@ -11,11 +11,9 @@ import Link from "next/link";
 import CountLoader from "@/components/fakultet/CountLoader";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 
-export default async function StipendijePage({
-  searchParams,
-}: {
-  searchParams?: { city?: string };
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function StipendijePage(props: any) {
+  const searchParams = props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
   const postsPromise = getAllPost("studentski dom", city);

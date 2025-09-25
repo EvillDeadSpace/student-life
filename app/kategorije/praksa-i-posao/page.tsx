@@ -11,11 +11,9 @@ import Link from "next/link";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 import CountLoader from "@/components/fakultet/CountLoader";
 
-export default async function PraksaPosaoPage({
-  searchParams,
-}: {
-  searchParams?: { city?: string };
-}) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function PraksaPosaoPage(props: any) {
+  const searchParams = props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
   const postsPromise = getAllPost("studentski dom", city);
