@@ -6,8 +6,14 @@ import Link from "next/link";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 import CountLoader from "@/components/fakultet/CountLoader";
 
-export default async function StudentskiDomPage() {
-  const postsPromise = getAllPost("studentski dom");
+export default async function StudentskiDomPage({
+  searchParams,
+}: {
+  searchParams?: { city?: string };
+}) {
+  const city = searchParams?.city ?? undefined;
+
+  const postsPromise = getAllPost("studentski dom", city);
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>

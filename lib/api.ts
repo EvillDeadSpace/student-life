@@ -53,7 +53,10 @@ export async function heroPost(): Promise<Post[]> {
   }
 }
 // Fetch posts filtered by category
-export async function getAllPost(category: string): Promise<Post[]> {
+export async function getAllPost(
+  category: string,
+  city?: string
+): Promise<Post[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const apiUrl = `${baseUrl}/api/posts`;
@@ -78,9 +81,18 @@ export async function getAllPost(category: string): Promise<Post[]> {
     simulateLatency(2000);
     const data: Post[] = await response.json();
 
-    const filtered = data.filter(
-      (post: Post) => post.kategorija?.toLowerCase() === category.toLowerCase()
-    );
+    const filtered = data.filter((post: Post) => {
+      const matchesCategory =
+        post.kategorija?.toLowerCase() === category.toLowerCase();
+      if (!matchesCategory) return false;
+      if (!city) return true;
+      const postCity = (
+        post.lokacija ||
+        post.user?.lokacija ||
+        ""
+      ).toLowerCase();
+      return postCity === city.toLowerCase();
+    });
 
     return filtered;
   } catch (error) {

@@ -11,8 +11,14 @@ import Link from "next/link";
 import CountLoader from "@/components/fakultet/CountLoader";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 
-export default async function StipendijePage() {
-  const postsPromise = getAllPost("stipendije");
+export default async function StipendijePage({
+  searchParams,
+}: {
+  searchParams?: { city?: string };
+}) {
+  const city = searchParams?.city ?? undefined;
+
+  const postsPromise = getAllPost("studentski dom", city);
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}

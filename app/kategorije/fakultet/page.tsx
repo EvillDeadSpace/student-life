@@ -10,9 +10,14 @@ import { Suspense } from "react";
 import TextSkeleton from "@/components/fakultet/TextSkeleton";
 import CountLoader from "@/components/fakultet/CountLoader";
 
-export default async function FakultetPage() {
-  const postsPromise = getAllPost("fakultet");
+export default async function FakultetPage({
+  searchParams,
+}: {
+  searchParams?: { city?: string };
+}) {
+  const city = searchParams?.city ?? undefined;
 
+  const postsPromise = getAllPost("fakultet", city);
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900'>
       {/* Header */}

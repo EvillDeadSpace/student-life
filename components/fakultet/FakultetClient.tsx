@@ -1,40 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { useEffect } from "react";
 import CitySelect from "@/components/ui/CitySelect";
-import { type Post, getAllPost } from "@/lib/api";
-import { PlusIcon } from "@heroicons/react/24/outline";
-import Link from "next/link";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 
 type Props = {
-  initialPosts?: Post[];
   countPost?: number;
+  // optional slug like 'fakultet' or 'studentski-dom'
+  categorySlug?: string;
 };
 
-export default function FakultetClient({ initialPosts, countPost }: Props) {
+export default function FakultetClient({ countPost, categorySlug }: Props) {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
-  const [postsCount, setPostsCount] = useState<number>(
-    initialPosts?.length ?? 0
-  );
+  // postsCount state is not used in this client — server provides count via props
 
-  useEffect(() => {
-    let mounted = true;
-    // If no initial posts were provided by the server, fetch on mount so the UI shows numbers
-    if (!initialPosts) {
-      (async () => {
-        try {
-          const data = await getAllPost("fakultet");
-          if (mounted) setPostsCount(data.length);
-        } catch (err) {
-          console.error("FakultetClient fetch error:", err);
-        }
-      })();
-    }
-    return () => {
-      mounted = false;
-    };
-  }, [initialPosts]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function onCitySelect(city: string | null) {
+    // update local (controlled) value so dropdown reflects selection
+    setSelectedCity(city);
+
+    // determine base path — prefer explicit prop, else infer from pathname
+    let base = "/kategorije";
+    const inferred = pathname?.split("?")[0];
+    if (categorySlug) base = `/kategorije/${categorySlug}`;
+    else if (inferred && inferred.startsWith("/kategorije")) base = inferred;
+
+    // preserve other query params and set/delete `city`
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    if (city) params.set("city", city);
+    else params.delete("city");
+
+    const qs = params.toString();
+    const url = qs ? `${base}?${qs}` : base;
+    // replace instead of push to avoid history spam
+    router.replace(url);
+  }
+
+  // no client-side fetch needed here — parent server component provides initial data/count
 
   return (
     <div>
@@ -47,7 +52,7 @@ export default function FakultetClient({ initialPosts, countPost }: Props) {
         </div>
 
         <div className='text-m bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
-          <CitySelect value={selectedCity} onChange={setSelectedCity} />
+          <CitySelect value={selectedCity} onChange={onCitySelect} />
         </div>
 
         <div className='bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg'>
