@@ -284,26 +284,34 @@ export async function deletePost(postId: number) {
 }
 
 // Fetch all users
-export async function fetchAllStudent(): Promise<Post[]> {
+export async function fetchAllStudent(): Promise<User[]> {
   try {
+    // Resolve base URL: client can use relative path, server should use env-provided URL
     const base =
       typeof window !== "undefined"
-        ? "" // client: relative ok
-        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
+        ? ""
+        : (
+            process.env.NEXT_PUBLIC_API_URL ||
+            process.env.NEXT_PUBLIC_SITE_URL ||
+            "http://localhost:3000"
+          ).replace(/\/$/, "");
 
-    simulateLatency(2000);
     const res = await fetch(`${base}/api/user`, {
-      cache: "force-cache",
+      // avoid serving stale cached payloads for users by default
+      cache: "no-store",
       next: { revalidate: 60 },
     });
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error("Error fetching users:", res.status, res.statusText);
+      return [];
+    }
 
     const data = await res.json();
 
-    return Array.isArray(data) ? data : [];
+    return Array.isArray(data) ? (data as User[]) : [];
   } catch (err) {
-    console.error("Error fetching posts:", err);
+    console.error("Error fetching users:", err);
     return [];
   }
 }

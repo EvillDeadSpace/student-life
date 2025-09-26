@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function GET() {
-  const posts = await prisma.post.findMany();
+  const users = await prisma.user.findMany();
 
-  return NextResponse.json(posts);
+  return NextResponse.json(users);
 }

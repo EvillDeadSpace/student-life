@@ -2,7 +2,11 @@ import { NextResponse } from "next/server";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+// Use a global Prisma client in development / serverless environments to avoid
+// exhausting database connections when the module is reloaded frequently.
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Create new post
 export async function POST(req: Request) {
@@ -68,10 +72,10 @@ export async function GET() {
       },
     });
 
-    // Transform data to include user location in each post
+    // Transform data to include user location in each post (safe access)
     const postsWithLocation = posts.map((post) => ({
       ...post,
-      lokacija: post.user.lokacija,
+      lokacija: post.user?.lokacija ?? null,
     }));
 
     console.log(
