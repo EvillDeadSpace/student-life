@@ -35,16 +35,32 @@ export async function heroPost(): Promise<Post[]> {
     const base =
       typeof window !== "undefined"
         ? "" // client: relative ok
-        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+        : (
+            process.env.NEXT_PUBLIC_API_URL ||
+            process.env.NEXT_PUBLIC_SITE_URL ||
+            (process.env.VERCEL_URL
+              ? `https://${process.env.VERCEL_URL}`
+              : undefined) ||
+            "http://localhost:3000"
+          ).replace(/\/$/, "");
 
-    const res = await fetch(`${base}/api/posts`, {
+    const apiUrl = base ? `${base}/api/posts` : `/api/posts`;
+
+    const res = await fetch(apiUrl, {
       cache: "default",
       next: {
         revalidate: 3600,
       },
     });
-
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error(
+        "Failed to fetch hero posts:",
+        res.status,
+        res.statusText,
+        apiUrl
+      );
+      return [];
+    }
     const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (err) {
@@ -316,7 +332,3 @@ export async function fetchAllStudent(): Promise<User[]> {
   }
 }
 export async function getNumberComments() {}
-
-function simulateLatency(ms = 2000) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
