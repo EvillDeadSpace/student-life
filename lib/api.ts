@@ -38,9 +38,9 @@ export async function heroPost(): Promise<Post[]> {
         : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
     const res = await fetch(`${base}/api/posts`, {
-      cache: "force-cache",
+      cache: "default",
       next: {
-        revalidate: 10,
+        revalidate: 3600,
       },
     });
 
@@ -76,8 +76,8 @@ export async function getAllPost(
     const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
 
     const response = await fetch(apiUrl, {
-      cache: "force-cache",
-      next: { revalidate: 10, tags: [`posts:${categorySlug}`] },
+      cache: "default",
+      next: { revalidate: 3600, tags: [`posts:${categorySlug}`] },
     });
 
     if (!response.ok) {
@@ -120,7 +120,7 @@ export async function getAllPostByUser(
     // Use relative path so it works in production too
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     const res = await fetch(`${baseUrl}/api/userpost?userId=${userId}`, {
-      cache: "no-store",
+      cache: "default",
     });
     if (!res.ok) {
       console.error("Failed to fetch user posts:", res.statusText);
