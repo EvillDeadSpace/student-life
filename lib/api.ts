@@ -29,27 +29,40 @@ export interface Post {
   };
 }
 
+// Resolve base URL for server vs client. Returns '' on client (use relative paths),
+// otherwise returns an absolute base like https://your-site.vercel.app
+function getBaseUrl(): string {
+  if (typeof window !== "undefined") return "";
+  const envBase =
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : undefined) ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    undefined;
+  const base = (envBase || "http://localhost:3000").replace(/\/$/, "");
+  // Optional debug
+  if (process.env.DEBUG_API === "true") {
+    console.log("getBaseUrl resolved:", base);
+  }
+  return base;
+}
+
 // Fetch posts filtered by category
 export async function heroPost(): Promise<Post[]> {
   try {
-    const base =
-      typeof window !== "undefined"
-        ? "" // client: relative ok
-        : (
-            process.env.NEXT_PUBLIC_API_URL ||
-            process.env.NEXT_PUBLIC_SITE_URL ||
-            (process.env.VERCEL_URL
-              ? `https://${process.env.VERCEL_URL}`
-              : undefined) ||
-            "http://localhost:3000"
-          ).replace(/\/$/, "");
-
+    const base = getBaseUrl();
     const apiUrl = base ? `${base}/api/posts` : `/api/posts`;
 
+    if (process.env.DEBUG_API === "true")
+      console.log("heroPost fetching:", apiUrl);
     const res = await fetch(apiUrl, {
-      cache: "default",
+      // don't serve stale cached hero counts in production; fetch fresh each request
+      cache: "no-store",
       next: {
-        revalidate: 3600,
+        revalidate: 0,
       },
     });
     if (!res.ok) {
@@ -77,16 +90,8 @@ export async function getAllPost(
     // Resolve base URL correctly for client vs server.
     // On the client we can use a relative path. On the server we must use an absolute URL
     // and prefer the environment-provided site/api URL (set this in production).
-    const baseUrlClient = typeof window !== "undefined" ? "" : undefined;
-    const envBase =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      process.env.NEXT_PUBLIC_API_URL;
-    const baseUrl =
-      baseUrlClient === ""
-        ? ""
-        : (envBase || "http://localhost:3000").replace(/\/$/, "");
-    const apiUrl = baseUrl ? `${baseUrl}/api/posts` : `/api/posts`;
+    const base = getBaseUrl();
+    const apiUrl = base ? `${base}/api/posts` : `/api/posts`;
 
     // use category-based tag to allow server-side revalidation by tag
     const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
@@ -134,8 +139,13 @@ export async function getAllPostByUser(
   try {
     if (!userId) return [];
     // Use relative path so it works in production too
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    const res = await fetch(`${baseUrl}/api/userpost?userId=${userId}`, {
+    const base = getBaseUrl();
+    const origin = base
+      ? base
+      : typeof window !== "undefined"
+      ? window.location.origin
+      : "";
+    const res = await fetch(`${origin}/api/userpost?userId=${userId}`, {
       cache: "default",
     });
     if (!res.ok) {
@@ -303,19 +313,14 @@ export async function deletePost(postId: number) {
 export async function fetchAllStudent(): Promise<User[]> {
   try {
     // Resolve base URL: client can use relative path, server should use env-provided URL
-    const base =
-      typeof window !== "undefined"
-        ? ""
-        : (
-            process.env.NEXT_PUBLIC_API_URL ||
-            process.env.NEXT_PUBLIC_SITE_URL ||
-            "http://localhost:3000"
-          ).replace(/\/$/, "");
+    const base = getBaseUrl();
 
+    if (process.env.DEBUG_API === "true")
+      console.log("fetchAllStudent fetching:", `${base}/api/user`);
     const res = await fetch(`${base}/api/user`, {
-      // avoid serving stale cached payloads for users by default
+      // always fetch fresh user list for counters
       cache: "no-store",
-      next: { revalidate: 60 },
+      next: { revalidate: 0 },
     });
 
     if (!res.ok) {
