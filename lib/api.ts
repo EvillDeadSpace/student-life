@@ -29,51 +29,22 @@ export interface Post {
   };
 }
 
-// Resolve base URL for server vs client. Returns '' on client (use relative paths),
-// otherwise returns an absolute base like https://your-site.vercel.app
-function getBaseUrl(): string {
-  if (typeof window !== "undefined") return "";
-  const envBase =
-    process.env.NEXT_PUBLIC_API_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : undefined) ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    undefined;
-  const base = (envBase || "http://localhost:3000").replace(/\/$/, "");
-  // Optional debug
-  if (process.env.DEBUG_API === "true") {
-    console.log("getBaseUrl resolved:", base);
-  }
-  return base;
-}
-
 // Fetch posts filtered by category
 export async function heroPost(): Promise<Post[]> {
   try {
-    const base = getBaseUrl();
-    const apiUrl = base ? `${base}/api/posts` : `/api/posts`;
+    const base =
+      typeof window !== "undefined"
+        ? "" // client: relative ok
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-    if (process.env.DEBUG_API === "true")
-      console.log("heroPost fetching:", apiUrl);
-    const res = await fetch(apiUrl, {
-      // don't serve stale cached hero counts in production; fetch fresh each request
-      cache: "no-store",
+    const res = await fetch(`${base}/api/posts`, {
+      cache: "default",
       next: {
-        revalidate: 0,
+        revalidate: 3600,
       },
     });
-    if (!res.ok) {
-      console.error(
-        "Failed to fetch hero posts:",
-        res.status,
-        res.statusText,
-        apiUrl
-      );
-      return [];
-    }
+
+    if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (err) {
@@ -90,8 +61,16 @@ export async function getAllPost(
     // Resolve base URL correctly for client vs server.
     // On the client we can use a relative path. On the server we must use an absolute URL
     // and prefer the environment-provided site/api URL (set this in production).
-    const base = getBaseUrl();
-    const apiUrl = base ? `${base}/api/posts` : `/api/posts`;
+    const baseUrlClient = typeof window !== "undefined" ? "" : undefined;
+    const envBase =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_API_URL;
+    const baseUrl =
+      baseUrlClient === ""
+        ? ""
+        : (envBase || "http://localhost:3000").replace(/\/$/, "");
+    const apiUrl = baseUrl ? `${baseUrl}/api/posts` : `/api/posts`;
 
     // use category-based tag to allow server-side revalidation by tag
     const categorySlug = category.toLowerCase().replace(/\s+/g, "-");
@@ -139,13 +118,8 @@ export async function getAllPostByUser(
   try {
     if (!userId) return [];
     // Use relative path so it works in production too
-    const base = getBaseUrl();
-    const origin = base
-      ? base
-      : typeof window !== "undefined"
-      ? window.location.origin
-      : "";
-    const res = await fetch(`${origin}/api/userpost?userId=${userId}`, {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const res = await fetch(`${baseUrl}/api/userpost?userId=${userId}`, {
       cache: "default",
     });
     if (!res.ok) {
@@ -310,30 +284,31 @@ export async function deletePost(postId: number) {
 }
 
 // Fetch all users
-export async function fetchAllStudent(): Promise<User[]> {
+export async function fetchAllStudent(): Promise<Post[]> {
   try {
-    // Resolve base URL: client can use relative path, server should use env-provided URL
-    const base = getBaseUrl();
+    const base =
+      typeof window !== "undefined"
+        ? "" // client: relative ok
+        : process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // server: koristi env ili fallback
 
-    if (process.env.DEBUG_API === "true")
-      console.log("fetchAllStudent fetching:", `${base}/api/user`);
+    simulateLatency(2000);
     const res = await fetch(`${base}/api/user`, {
-      // always fetch fresh user list for counters
-      cache: "no-store",
-      next: { revalidate: 0 },
+      cache: "force-cache",
+      next: { revalidate: 60 },
     });
 
-    if (!res.ok) {
-      console.error("Error fetching users:", res.status, res.statusText);
-      return [];
-    }
+    if (!res.ok) return [];
 
     const data = await res.json();
 
-    return Array.isArray(data) ? (data as User[]) : [];
+    return Array.isArray(data) ? data : [];
   } catch (err) {
-    console.error("Error fetching users:", err);
+    console.error("Error fetching posts:", err);
     return [];
   }
 }
 export async function getNumberComments() {}
+
+function simulateLatency(ms = 2000) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
