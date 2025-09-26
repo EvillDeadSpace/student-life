@@ -4,7 +4,6 @@ export default async function HeroCounterNumber() {
   const post = await heroPost();
   const user = await fetchAllStudent();
 
-  console.log(user);
   const finalPost = Math.floor(post.length / 10) * 10;
   const finalUser = Math.floor(user.length / 10) * 10;
 
