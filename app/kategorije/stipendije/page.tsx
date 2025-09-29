@@ -13,7 +13,7 @@ import TextSkeleton from "@/components/fakultet/TextSkeleton";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function StipendijePage(props: any) {
-  const searchParams = props?.searchParams;
+  const searchParams = await props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
   const postsPromise = getAllPost("stipendije", city);

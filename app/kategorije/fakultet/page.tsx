@@ -12,7 +12,7 @@ import CountLoader from "@/components/fakultet/CountLoader";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function FakultetPage(props: any) {
-  const searchParams = props?.searchParams;
+  const searchParams = await props?.searchParams;
   const city = searchParams?.city ?? undefined;
 
   const postsPromise = getAllPost("fakultet", city);

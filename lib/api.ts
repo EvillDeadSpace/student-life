@@ -237,14 +237,74 @@ export const getPostByTitle = async (naslov: string) => {
 };
 
 export async function getLikeCount(postId: number) {
-  const res = await fetch(`/api/likes?postId=${postId}`, { cache: "no-store" });
-  const json = await res.json();
-  if (!res.ok) {
-    console.error("getLikeCount error response:", res.status, json);
-    return 0;
-  }
-  return Number(json.count ?? 0);
+  // Use batch endpoint coalescer to avoid N separate requests when many components
+  // ask for counts at once. The coalescer collects requested IDs during the
+  // current microtask tick and issues a single request for all of them.
+  return await LikeCountBatcher.request(postId);
 }
+
+// Simple in-memory batcher for like counts. Coalesces calls made within the
+// same event loop tick (microtask) into a single HTTP request to /api/likes?postIds=...
+const LikeCountBatcher = (() => {
+  let queue: number[] = [];
+  const resolvers: Record<number, Array<(n: number) => void>> = {};
+  let scheduled = false;
+
+  async function flush() {
+    const ids = Array.from(new Set(queue));
+    queue = [];
+    scheduled = false;
+
+    if (ids.length === 0) return;
+
+    try {
+      const res = await fetch(`/api/likes?postIds=${ids.join(",")}`, {
+        cache: "no-store",
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        console.error("Batch getLikeCount error:", res.status, json);
+        // On error, resolve with 0
+        for (const id of ids) {
+          const list = resolvers[id] || [];
+          for (const r of list) r(0);
+          delete resolvers[id];
+        }
+        return;
+      }
+
+      const counts: Record<number, number> = json.counts || {};
+      for (const id of ids) {
+        const val = Number(counts[id] ?? 0);
+        const list = resolvers[id] || [];
+        for (const r of list) r(val);
+        delete resolvers[id];
+      }
+    } catch (err) {
+      console.error("Batch getLikeCount exception:", err);
+      for (const id of ids) {
+        const list = resolvers[id] || [];
+        for (const r of list) r(0);
+        delete resolvers[id];
+      }
+    }
+  }
+
+  return {
+    request(id: number): Promise<number> {
+      return new Promise((resolve) => {
+        if (!resolvers[id]) resolvers[id] = [];
+        resolvers[id].push(resolve);
+        queue.push(id);
+        if (!scheduled) {
+          scheduled = true;
+          // schedule microtask to flush soon
+          Promise.resolve().then(flush);
+        }
+      });
+    },
+  };
+})();
 
 export async function toggleLike(postId: number, userId: number) {
   const res = await fetch(`/api/likes`, {

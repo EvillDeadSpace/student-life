@@ -6,10 +6,47 @@ import { prisma } from "@/lib/prisma"; // use default import if lib/prisma expor
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const raw = url.searchParams.get("postId");
+    // Support both single postId and batched postIds
+    // e.g. /api/likes?postId=12  OR /api/likes?postIds=1,2,3
+    const rawSingle = url.searchParams.get("postId");
+    const rawBatch = url.searchParams.get("postIds");
+
+    if (!rawSingle && !rawBatch) {
+      return NextResponse.json(
+        { error: "postId or postIds required" },
+        { status: 400 }
+      );
+    }
+
+    if (rawBatch) {
+      // parse comma separated ids
+      const ids = rawBatch
+        .split(",")
+        .map((s) => Number(s.trim()))
+        .filter((n) => !Number.isNaN(n));
+
+      // return map of id -> count
+      const counts: Record<number, number> = {};
+      if (ids.length === 0) return NextResponse.json({ counts });
+
+      // Single query: group by postId using prisma aggregate via counts per id
+      // Prisma doesn't have a native groupBy-count for all providers in a single call easily
+      // but calling count per id in a simple Promise.all is acceptable here because
+      // the main win is reducing calls from many small client requests into one server call batch.
+      const results = await Promise.all(
+        ids.map(async (id) => {
+          const c = await prisma.likes.count({ where: { postId: id } });
+          return { id, count: c };
+        })
+      );
+
+      for (const r of results) counts[r.id] = r.count;
+      return NextResponse.json({ counts });
+    }
+
+    // single id path
+    const raw = rawSingle;
     console.log("GET /api/likes raw postId:", raw);
-    if (raw === null)
-      return NextResponse.json({ error: "postId required" }, { status: 400 });
     const postId = Number(raw);
     if (Number.isNaN(postId))
       return NextResponse.json(
