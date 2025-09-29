@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProfilePostComponents from "./ProfilePostComponents";
 import { Toaster } from "react-hot-toast";
+import Image from "next/image";
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
