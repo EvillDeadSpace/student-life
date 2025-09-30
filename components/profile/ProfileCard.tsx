@@ -73,7 +73,10 @@ export default function ProfileCard({ user, onLogout }: Props) {
           </dl>
         </div>
       </div>
-      <div className='my-4 overflow-hidden rounded-xl dark:bg-gray-800 shadow-md max-w-4xl'>
+      <div
+        className='my-4 overflow-hidden rounded-xl dark:bg-gray-800 shadow-md max-w-4xl animate-fadeInUp'
+        style={{ animationDelay: "0.2s" }}
+      >
         <div className='md:block lg:block md:text-center lg:text-center'>
           <div className='flex-none p-2 w-28 h-28 md:w-36 md:h-36 lg:w-48 lg:h-48 mx-auto'>
             <Image
